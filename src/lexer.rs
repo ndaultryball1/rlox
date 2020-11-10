@@ -1,13 +1,27 @@
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Token {
+    // Operators
     ADD,
     SUB,
+    MULT,
+    DIV,
+
+    //Literals
     INT(String),
     ALPHA(String),
+
+    //Delimiters
     LBRACKET,
     RBRACKET,
+    LBRACE,
+    RBRACE,
+    BACKTICK, // Delimits strings - I have never liked "" and ''
+
+    //Special
+    COLON,
     END,
+
 
 }
 
@@ -45,6 +59,10 @@ impl Scanner<'_> {
         self.current.is_digit(10)
     }
 
+    fn is_alpha(&mut self) -> bool {
+        self.current.is_alphabetic()
+    }
+
     fn skip_whitespace(&mut self) {
         while self.peek().is_whitespace() {
             match self.peek() {
@@ -67,21 +85,33 @@ impl Scanner<'_> {
                 out.push(self.consume());
             }
             return Token::INT(out)
+        } else if self.is_alpha() {
+            while self.is_alpha() {
+                out.push(self.consume());
+            }
+            return Token::ALPHA(out)
         } else {
             match self.consume() {
+                // Operators
                 '+' => Token::ADD,
                 '-' => Token::SUB,
+                '*' => Token::MULT,
+                '\\' => Token::DIV,
+                // Delimiters
                 '(' => Token::LBRACKET,
                 ')' => Token::RBRACKET,
-                '\0' => Token::END,
+                '{' => Token::LBRACE,
+                '}' => Token::RBRACE,
+                '`' => Token::BACKTICK,
+
+                // Special
+                ':' => Token::COLON,
+                '\0' => Token::END, 
                 _ => panic!("Character not handled.")
 
             }
         }
-
     }
-
-
 }
 
 impl Iterator for Scanner<'_> {
