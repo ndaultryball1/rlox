@@ -6,6 +6,9 @@ pub enum Token {
     SUB,
     MULT,
     DIV,
+    BANG,
+    AND,
+    OR,
 
     //Literals
     INT(String),
@@ -97,6 +100,9 @@ impl Scanner<'_> {
                 '-' => Token::SUB,
                 '*' => Token::MULT,
                 '\\' => Token::DIV,
+                '!' => Token::BANG,
+                '&' => Token::AND,
+                '|' => Token::OR,
                 // Delimiters
                 '(' => Token::LBRACKET,
                 ')' => Token::RBRACKET,
