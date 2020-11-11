@@ -131,27 +131,31 @@ impl Iterator for Scanner<'_> {
     }
 }
 
+#[cfg(test)]
+mod test_lexer{
+    use super::Scanner;
+    use super::Token::*;
+    #[test]
+    fn test_add() {
+        let mut scan = Scanner::new("2+2");
+        assert_eq!(scan.get(), INT(String::from("2")));
+        assert_eq!(scan.get(), ADD);
+        assert_eq!(scan.get(), INT(String::from("2")));
+    }
 
-#[test]
-fn test_add() {
-    let mut scan = Scanner::new("2+2");
-    assert_eq!(scan.get(), Token::INT(String::from("2")));
-    assert_eq!(scan.get(), Token::ADD);
-    assert_eq!(scan.get(), Token::INT(String::from("2")));
-}
+    #[test]
+    fn test_long_int() {
+        let mut scan = Scanner::new("23+27");
+        assert_eq!(scan.get(), INT(String::from("23")));
+        assert_eq!(scan.get(), ADD);
+        assert_eq!(scan.get(), INT(String::from("27")));
+    }
 
-#[test]
-fn test_long_int() {
-    let mut scan = Scanner::new("23+27");
-    assert_eq!(scan.get(), Token::INT(String::from("23")));
-    assert_eq!(scan.get(), Token::ADD);
-    assert_eq!(scan.get(), Token::INT(String::from("27")));
-}
-
-#[test]
-fn test_whitespace() {
-    let mut scan = Scanner::new("     2 +  2  ");
-    assert_eq!(scan.get(), Token::INT(String::from("2")));
-    assert_eq!(scan.get(), Token::ADD);
-    assert_eq!(scan.get(), Token::INT(String::from("2")));
+    #[test]
+    fn test_whitespace() {
+        let mut scan = Scanner::new("     2 +  2  ");
+        assert_eq!(scan.get(), INT(String::from("2")));
+        assert_eq!(scan.get(), ADD);
+        assert_eq!(scan.get(), INT(String::from("2")));
+    }
 }
