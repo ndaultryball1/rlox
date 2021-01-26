@@ -1,17 +1,15 @@
 #![allow(dead_code)]
 
-#[derive(PartialEq)]
-#[derive(Debug)]
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Value {
     Int(i64),
-    Bool(bool)
+    Bool(bool),
 }
 
 type Name = &'static str;
 
 #[derive(Clone, Copy)]
-enum BinaryOp {
+pub enum BinaryOp {
     Add,
     Sub,
     Mult,
@@ -21,7 +19,7 @@ enum BinaryOp {
 }
 
 #[derive(Clone, Copy)]
-enum UnaryOp {
+pub enum UnaryOp {
     Not,
     Neg,
 }
@@ -29,7 +27,7 @@ enum UnaryOp {
 pub enum Expr {
     Constant(Value),
     BinaryExpr(Box<Expr>, BinaryOp, Box<Expr>),
-    UnaryExpr(UnaryOp, Box<Expr>)
+    UnaryExpr(UnaryOp, Box<Expr>),
 }
 
 impl Expr {
@@ -55,14 +53,14 @@ fn eval_binary(opp: BinaryOp, left: &Expr, right: &Expr) -> Value {
             Sub => Int(l - r),
             Mult => Int(l * r),
             Div => Int(l / r),
-            _ => panic!("Operation not defined for type: Int")
+            _ => panic!("Operation not defined for type: Int"),
         }
-    } else if let (Bool(l), Bool(r)) = (left_val, right_val) { 
+    } else if let (Bool(l), Bool(r)) = (left_val, right_val) {
         // Same for bool expressions
         match opp {
             And => Bool(l & r),
             Or => Bool(l | r),
-            _ => panic!("Operation not defined for type: Bool")
+            _ => panic!("Operation not defined for type: Bool"),
         }
     } else {
         panic!("Mismatched types.")
@@ -79,13 +77,13 @@ fn eval_unary(opp: UnaryOp, expr: &Expr) -> Value {
         // Do a typecheck and group all the integer operations together
         match opp {
             Neg => Int(-e),
-            _ => panic!("Operation not defined for type: Int")
+            _ => panic!("Operation not defined for type: Int"),
         }
-    } else if let Bool(e) = val { 
+    } else if let Bool(e) = val {
         // Same for bool expressions
         match opp {
             Not => Bool(!e),
-            _ => panic!("Operation not defined for type: Bool")
+            _ => panic!("Operation not defined for type: Bool"),
         }
     } else {
         panic!("Mismatched types.")
@@ -94,17 +92,16 @@ fn eval_unary(opp: UnaryOp, expr: &Expr) -> Value {
 
 #[cfg(test)]
 mod test_expression {
-    use super::Expr::*;
-    use super::Value::*;
     use super::BinaryOp::*;
+    use super::Expr::*;
     use super::UnaryOp::*;
+    use super::Value::*;
 
     #[test]
     fn test_binary() {
-
         let two = Int(2);
         let three = Int(3);
-        
+
         let res_add = BinaryExpr(Box::new(Constant(two)), Add, Box::new(Constant(three))).eval();
         let res_sub = BinaryExpr(Box::new(Constant(two)), Sub, Box::new(Constant(three))).eval();
 
@@ -117,7 +114,7 @@ mod test_expression {
     fn test_type_error_ints() {
         let two = Int(2);
         let three = Int(3);
-        
+
         let _ = BinaryExpr(Box::new(Constant(two)), Or, Box::new(Constant(three))).eval();
     }
 

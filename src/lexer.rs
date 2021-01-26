@@ -1,5 +1,4 @@
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     // Operators
     ADD,
@@ -24,24 +23,47 @@ pub enum Token {
     //Special
     COLON,
     END,
+}
 
+impl Token {
+    pub fn is_op(&self) -> bool {
+        match self {
+            ADD => true,
+            SUB => true,
+            MULT => true,
+            DIV => true,
+            BANG => true,
+            AND => true,
+            OR => true,
+            _ => false,
+        }
+    }
 
+    pub fn is_atom(&self) -> bool {
+        match self {
+            INT => true,
+            ALPHA => true,
+            _ => false,
+        }
+    }
 }
 
 pub struct Scanner<'a> {
     source: std::str::Chars<'a>,
     current: char,
-    line: u8
+    current_token: Token,
+    line: u8,
 }
 
 impl Scanner<'_> {
     pub fn new(source: &str) -> Scanner {
         let mut source_iter = source.chars();
         let ch = source_iter.next().unwrap();
-        Scanner{
+        Scanner {
             source: source_iter,
             current: ch,
-            line: 1
+            current_token: Token::END,
+            line: 1,
         }
     }
 
@@ -49,11 +71,15 @@ impl Scanner<'_> {
         self.current
     }
 
+    fn peek_token(&self) -> Token {
+        self.current_token
+    }
+
     fn consume(&mut self) -> char {
         let old = self.current;
         self.current = match self.source.next() {
             Some(c) => c,
-            None => '\0'
+            None => '\0',
         };
         old
     }
@@ -71,28 +97,28 @@ impl Scanner<'_> {
             match self.peek() {
                 '\n' => self.line += 1,
                 '\0' => break, // EOF
-                _ => ()
+                _ => (),
             }
             self.consume();
         }
     }
 
     fn get(&mut self) -> Token {
-        // Get the string of the next token
-        let mut out = String::new() ;
-        
+        // Get the next token
+        let mut out = String::new();
+
         self.skip_whitespace();
 
         if self.is_digit() {
             while self.is_digit() {
                 out.push(self.consume());
             }
-            return Token::INT(out)
+            return Token::INT(out);
         } else if self.is_alpha() {
             while self.is_alpha() {
                 out.push(self.consume());
             }
-            return Token::ALPHA(out)
+            return Token::ALPHA(out);
         } else {
             match self.consume() {
                 // Operators
@@ -112,27 +138,26 @@ impl Scanner<'_> {
 
                 // Special
                 ':' => Token::COLON,
-                '\0' => Token::END, 
-                _ => panic!("Character not handled.")
-
+                '\0' => Token::END,
+                _ => panic!("Character not handled."),
             }
         }
     }
 }
 
 impl Iterator for Scanner<'_> {
-    type Item=Token;
+    type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
         match self.get() {
             Token::END => None,
-            t => Some(t)
+            t => Some(t),
         }
     }
 }
 
 #[cfg(test)]
-mod test_lexer{
+mod test_lexer {
     use super::Scanner;
     use super::Token::*;
     #[test]
